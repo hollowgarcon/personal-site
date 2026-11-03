@@ -41,8 +41,9 @@ h1 {
     // dark smoke over the crowd, to the left of the statue base
     [[1200,565],[1330,548],[1500,560],[1500,650],[1380,660],[1260,625]]
   ];
-  var STRENGTH = 0.02;     // how far the smoke swirls. Raise for more motion.
-  var SHIMMER = 0.3;       // light and dark billowing in the smoke.
+  var LEVELS = [0.8, 1, 1]; // motion of each outline. The right-side plumes move 25% more than the left.
+  var STRENGTH = 0.025;    // how far the smoke swirls. Raise for more motion.
+  var SHIMMER = 0.375;     // light and dark billowing in the smoke.
   var SPEED = 1.0;
 
   var canvas = document.getElementById("smoke");
@@ -111,8 +112,9 @@ h1 {
   mc.width = 256; mc.height = 128;
   var mx = mc.getContext("2d");
   mx.fillStyle = "#000"; mx.fillRect(0, 0, 256, 128);
-  mx.fillStyle = "#fff";
-  POLYS.forEach(function (poly) {
+  POLYS.forEach(function (poly, k) {
+    var g = Math.round(255 * LEVELS[k]);
+    mx.fillStyle = "rgb(" + g + "," + g + "," + g + ")";
     mx.beginPath();
     poly.forEach(function (pt, i) {
       var x = pt[0] * 0.128, y = pt[1] * 0.128;
