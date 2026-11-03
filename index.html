@@ -25,10 +25,13 @@ h1 {
   letter-spacing: -0.01em;
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
+@media (max-width: 600px) {
+  h1 .last { display: block; }
+}
 </style>
 
 <canvas id="smoke" aria-hidden="true"></canvas>
-<h1>Dimas Aryo</h1>
+<h1>Dimas <span class="last">Aryo</span></h1>
 
 <script>
 (function () {
