@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@700&display=swap">
 <style>
-/* Layout: full-screen painting, name pinned top left. Single look on purpose. */
+/* Layout: full-screen painting, name pinned top left. Water is animated on a canvas laid over the painting. */
 :root {
   --bg: #3a3a34;
   --ink: #ffffff;
@@ -17,7 +17,9 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
+#water { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 h1 {
+  position: relative;
   margin: 0;
   font: 700 clamp(72px, 19.2vw, 216px) / 1 var(--serif);
   letter-spacing: -0.01em;
@@ -25,4 +27,129 @@ h1 {
 }
 </style>
 
+<canvas id="water" aria-hidden="true"></canvas>
 <h1>Dimas Aryo</h1>
+
+<script>
+(function () {
+  // Water outlines, drawn on the painting at 2000 x 1000.
+  var POLYS = [
+    // sea between the ships and the broken bridge
+    [[480,540],[700,528],[850,528],[940,552],[1100,572],[1090,590],[900,598],[780,605],[700,612],[560,612],[480,585]],
+    // channel under the broken bridge
+    [[500,700],[690,690],[700,740],[720,800],[740,880],[700,905],[600,910],[520,890],[480,820],[470,740]],
+    // water under the arch
+    [[800,790],[830,750],[870,740],[910,760],[925,800],[925,880],[790,885],[785,830]]
+  ];
+  var STRENGTH = 0.0006;   // ripple size. Raise for more motion.
+  var SHIMMER = 0.015;     // light flicker on the water.
+  var SPEED = 0.5;
+
+  var canvas = document.getElementById("water");
+  var gl = canvas.getContext("webgl", { antialias: false });
+  if (!gl) { canvas.remove(); return; }
+
+  var VS = "attribute vec2 p; varying vec2 v; void main(){ v = vec2(p.x*0.5+0.5, 0.5-p.y*0.5); gl_Position = vec4(p,0.,1.); }";
+  var FS = [
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH", "precision highp float;", "#else", "precision mediump float;", "#endif",
+    "varying vec2 v;",
+    "uniform sampler2D img; uniform sampler2D mask; uniform vec2 scale; uniform float t;",
+    "uniform float strength; uniform float shimmer;",
+    "void main(){",
+    "  vec2 uv = (v - 0.5) * scale + 0.5;",
+    "  vec2 o = vec2(0.0045, 0.009);",
+    "  float m = texture2D(mask, uv).r * 0.4;",
+    "  m += texture2D(mask, uv + vec2(o.x, 0.0)).r * 0.15;",
+    "  m += texture2D(mask, uv - vec2(o.x, 0.0)).r * 0.15;",
+    "  m += texture2D(mask, uv + vec2(0.0, o.y)).r * 0.15;",
+    "  m += texture2D(mask, uv - vec2(0.0, o.y)).r * 0.15;",
+    "  vec2 d = vec2(sin(uv.y*260.0 + t + 2.0*sin(uv.x*45.0 + t*0.7)),",
+    "                cos(uv.x*210.0 - t*0.8 + 2.0*sin(uv.y*60.0 - t*0.5)));",
+    "  vec3 c = texture2D(img, uv + d * strength * m).rgb;",
+    "  c *= 1.0 + shimmer * m * sin(uv.x*320.0 + uv.y*140.0 + t*1.3);",
+    "  gl_FragColor = vec4(c, 1.0);",
+    "}"
+  ].join("\n");
+
+  function shader(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null;
+  }
+  var vs = shader(gl.VERTEX_SHADER, VS), fs = shader(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) { canvas.remove(); return; }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { canvas.remove(); return; }
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  function texture(unit, source) {
+    var tex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+
+  var mc = document.createElement("canvas");
+  mc.width = 256; mc.height = 128;
+  var mx = mc.getContext("2d");
+  mx.fillStyle = "#000"; mx.fillRect(0, 0, 256, 128);
+  mx.fillStyle = "#fff";
+  POLYS.forEach(function (poly) {
+    mx.beginPath();
+    poly.forEach(function (pt, i) {
+      var x = pt[0] * 0.128, y = pt[1] * 0.128;
+      if (i) mx.lineTo(x, y); else mx.moveTo(x, y);
+    });
+    mx.closePath(); mx.fill();
+  });
+
+  var U = {};
+  ["img", "mask", "scale", "t", "strength", "shimmer"].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  var IMG_ASPECT = 2;
+  var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    var a = canvas.clientWidth / canvas.clientHeight;
+    gl.uniform2f(U.scale, a > IMG_ASPECT ? 1 : a / IMG_ASPECT, a > IMG_ASPECT ? IMG_ASPECT / a : 1);
+  }
+
+  function frame(ms) {
+    gl.uniform1f(U.t, (ms / 1000 * SPEED) % 600);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (!still) requestAnimationFrame(frame);
+  }
+
+  var image = new Image();
+  image.crossOrigin = "anonymous";
+  image.onload = function () {
+    texture(0, image);
+    texture(1, mc);
+    gl.uniform1i(U.img, 0);
+    gl.uniform1i(U.mask, 1);
+    gl.uniform1f(U.strength, STRENGTH);
+    gl.uniform1f(U.shimmer, SHIMMER);
+    IMG_ASPECT = image.naturalWidth / image.naturalHeight;
+    resize();
+    window.addEventListener("resize", function () { resize(); if (still) frame(0); });
+    requestAnimationFrame(frame);
+  };
+  image.onerror = function () { canvas.remove(); };
+  image.src = "background.jpg";
+})();
+</script>
