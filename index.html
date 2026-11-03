@@ -1,0 +1,194 @@
+<title>Personal Site</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+/* Layout: one narrow column, top nav with three views, hash routing. Placeholder content is marked. */
+:root {
+  --bg: #f6f7f5;
+  --fg: #1d201e;
+  --muted: #6b716d;
+  --line: #d9dcd8;
+  --accent: #2f6f4e;
+  --serif: "Newsreader", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131614; --fg: #e4e7e3; --muted: #8b928d; --line: #2c312e; --accent: #7fc19b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131614; --fg: #e4e7e3; --muted: #8b928d; --line: #2c312e; --accent: #7fc19b;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font: 400 18px/1.6 var(--serif);
+  padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 600px; margin: 0 auto; display: grid; gap: 40px; }
+a { color: inherit; text-decoration-color: var(--line); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--accent); color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0.02em; }
+header { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; align-items: baseline; }
+.site-name { font-family: var(--mono); font-size: 13px; font-weight: 500; text-decoration: none; }
+nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-family: var(--mono); font-size: 13px; }
+nav a { text-decoration: none; color: var(--muted); padding-bottom: 2px; border-bottom: 1px solid transparent; }
+nav a[aria-current="page"] { color: var(--fg); border-bottom-color: var(--accent); }
+nav a:hover { color: var(--accent); }
+main > section[hidden] { display: none; }
+h1, h2 { font-weight: 500; margin: 0; line-height: 1.2; text-wrap: balance; }
+h1 { font-size: 34px; }
+h2 { font-size: 22px; }
+.entry .word { font-size: 40px; font-weight: 500; line-height: 1.1; }
+.entry .pron { color: var(--muted); font-style: italic; }
+.entry ol { margin: 12px 0 0; padding-left: 22px; }
+.entry .also { margin-top: 16px; color: var(--muted); }
+.todo { color: var(--accent); font-family: var(--mono); font-size: 12px; }
+.prompts { display: grid; gap: 6px; font-family: var(--mono); font-size: 13px; }
+.prompts p { margin: 0 0 6px; color: var(--muted); }
+.lede { color: var(--muted); margin: 8px 0 0; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; }
+.list li { border-top: 1px solid var(--line); padding: 16px 0; display: grid; gap: 4px; }
+.list li:last-child { border-bottom: 1px solid var(--line); }
+.row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; align-items: baseline; }
+.meta { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.title { font-weight: 500; }
+.note { margin: 0; color: var(--muted); font-size: 16px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.filters button {
+  font: 400 12px var(--mono); color: var(--muted); background: none;
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer;
+}
+.filters button[aria-pressed="true"] { color: var(--bg); background: var(--fg); border-color: var(--fg); }
+.filters button:hover { border-color: var(--accent); }
+footer { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; color: var(--muted); }
+footer button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <a class="site-name" href="#about">your·name</a>
+    <nav aria-label="Main">
+      <a href="#about" data-view="about">About</a>
+      <a href="#ideas" data-view="ideas">Ideas &amp; Learnings</a>
+      <a href="#bookshelf" data-view="bookshelf">Bookshelf</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-about" data-view="about" style="display:grid;gap:40px">
+      <div class="entry">
+        <div class="word">your·name</div>
+        <div class="pron mono">/pronunciation/ &nbsp;noun</div>
+        <ol>
+          <li>one line on what you do <span class="todo">[edit]</span></li>
+          <li>one line on what you care about <span class="todo">[edit]</span></li>
+        </ol>
+        <div class="also">Also known as: <span class="todo">[nicknames]</span></div>
+        <div class="also">See also: <a href="https://github.com/hollowgarcon">GitHub</a> · <span class="todo">[other links]</span></div>
+      </div>
+      <div>
+        <h2>About</h2>
+        <p>A short paragraph about you goes here. Who you are, what you work on, what you are curious about right now. <span class="todo">[edit]</span></p>
+      </div>
+      <div class="prompts">
+        <p>hey! i'm <span class="todo">[name]</span></p>
+        <a href="#ideas">What are you thinking about?</a>
+        <a href="#bookshelf">What are you reading?</a>
+      </div>
+    </section>
+
+    <section id="view-ideas" data-view="ideas" hidden>
+      <h1>Ideas &amp; Learnings</h1>
+      <p class="lede">Short notes on things you are working through. Newest first.</p>
+      <ul class="list" style="margin-top:24px">
+        <li>
+          <div class="row"><span class="title">Example idea: a half-formed thought</span><span class="meta">2026-11-03 · idea</span></div>
+          <p class="note">One or two lines that say where the thought stands today.</p>
+        </li>
+        <li>
+          <div class="row"><span class="title">Example learning: something that surprised you</span><span class="meta">2026-10-28 · learning</span></div>
+          <p class="note">What you learned and what changed in how you work.</p>
+        </li>
+        <li>
+          <div class="row"><span class="title">Example idea: a question you keep returning to</span><span class="meta">2026-10-15 · idea</span></div>
+          <p class="note">The question, and your current best guess.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="view-bookshelf" data-view="bookshelf" hidden>
+      <h1>Bookshelf</h1>
+      <p class="lede">What you are reading, have read, and want to read.</p>
+      <div class="filters" role="group" aria-label="Filter books">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="reading" aria-pressed="false">Reading</button>
+        <button type="button" data-filter="read" aria-pressed="false">Read</button>
+        <button type="button" data-filter="want" aria-pressed="false">Want to read</button>
+      </div>
+      <ul class="list" style="margin-top:24px" id="books">
+        <li data-status="reading">
+          <div class="row"><span class="title">Example book title</span><span class="meta">reading</span></div>
+          <p class="note">Author name. One line on why you picked it up.</p>
+        </li>
+        <li data-status="read">
+          <div class="row"><span class="title">Example book title</span><span class="meta">read · ★★★★☆</span></div>
+          <p class="note">Author name. One line you would tell a friend.</p>
+        </li>
+        <li data-status="want">
+          <div class="row"><span class="title">Example book title</span><span class="meta">want to read</span></div>
+          <p class="note">Author name. Who recommended it.</p>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="mono">
+    <span>© 2026 your·name · v0.1</span>
+    <button type="button" id="theme">toggle theme</button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var views = ["about", "ideas", "bookshelf"];
+  function show() {
+    var v = location.hash.replace("#", "");
+    if (views.indexOf(v) < 0) v = "about";
+    document.querySelectorAll("main > section").forEach(function (s) {
+      s.hidden = s.dataset.view !== v;
+    });
+    document.querySelectorAll("nav a").forEach(function (a) {
+      if (a.dataset.view === v) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
+    });
+  }
+  window.addEventListener("hashchange", show);
+  show();
+
+  document.querySelectorAll(".filters button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = b.dataset.filter;
+      document.querySelectorAll(".filters button").forEach(function (x) {
+        x.setAttribute("aria-pressed", x === b ? "true" : "false");
+      });
+      document.querySelectorAll("#books li").forEach(function (li) {
+        li.hidden = f !== "all" && li.dataset.status !== f;
+      });
+    });
+  });
+
+  document.getElementById("theme").addEventListener("click", function () {
+    var r = document.documentElement;
+    var dark = r.dataset.theme
+      ? r.dataset.theme === "dark"
+      : matchMedia("(prefers-color-scheme: dark)").matches;
+    r.dataset.theme = dark ? "light" : "dark";
+  });
+})();
+</script>
