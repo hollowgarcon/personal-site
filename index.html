@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@700&display=swap">
 <style>
-/* Layout: full-screen painting, name pinned top left. Water is animated on a canvas laid over the painting. */
+/* Layout: full-screen painting, name pinned top left. Smoke is animated on a canvas laid over the painting. */
 :root {
   --bg: #3a3a34;
   --ink: #ffffff;
@@ -17,7 +17,7 @@ body {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-#water { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#smoke { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
 h1 {
   position: relative;
   margin: 0;
@@ -27,25 +27,25 @@ h1 {
 }
 </style>
 
-<canvas id="water" aria-hidden="true"></canvas>
+<canvas id="smoke" aria-hidden="true"></canvas>
 <h1>Dimas Aryo</h1>
 
 <script>
 (function () {
-  // Water outlines, drawn on the painting at 2000 x 1000.
+  // Smoke outlines, drawn on the painting at 2000 x 1000.
   var POLYS = [
-    // sea between the ships and the broken bridge
-    [[480,540],[700,528],[850,528],[940,552],[1100,572],[1090,590],[900,598],[780,605],[700,612],[560,612],[480,585]],
-    // channel under the broken bridge
-    [[500,700],[690,690],[700,740],[720,800],[740,880],[700,905],[600,910],[520,890],[480,820],[470,740]],
-    // water under the arch
-    [[800,790],[830,750],[870,740],[910,760],[925,800],[925,880],[790,885],[785,830]]
+    // dark plume on the left, above the burning ship
+    [[0,600],[120,585],[250,610],[380,650],[470,700],[500,760],[430,800],[330,780],[250,750],[150,725],[60,695],[0,680]],
+    // dark cloud between the cliff and the statue
+    [[1050,120],[1250,90],[1480,110],[1470,230],[1400,270],[1300,330],[1230,280],[1150,200],[1060,170]],
+    // dark smoke over the crowd, to the left of the statue base
+    [[1200,565],[1330,548],[1500,560],[1500,650],[1380,660],[1260,625]]
   ];
-  var STRENGTH = 0.004;    // ripple size. Raise for more motion.
-  var SHIMMER = 0.07;      // light flicker on the water.
-  var SPEED = 1.6;
+  var STRENGTH = 0.02;     // how far the smoke swirls. Raise for more motion.
+  var SHIMMER = 0.3;       // light and dark billowing in the smoke.
+  var SPEED = 1.0;
 
-  var canvas = document.getElementById("water");
+  var canvas = document.getElementById("smoke");
   var gl = canvas.getContext("webgl", { antialias: false });
   if (!gl) { canvas.remove(); return; }
 
@@ -55,18 +55,24 @@ h1 {
     "varying vec2 v;",
     "uniform sampler2D img; uniform sampler2D mask; uniform vec2 scale; uniform float t;",
     "uniform float strength; uniform float shimmer;",
+    "float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0 - 2.0*f);",
+    "  return mix(mix(h(i), h(i + vec2(1.0, 0.0)), f.x), mix(h(i + vec2(0.0, 1.0)), h(i + vec2(1.0, 1.0)), f.x), f.y); }",
+    "float fbm(vec2 p){ return 0.6*n(p) + 0.3*n(p*2.03) + 0.1*n(p*4.1); }",
     "void main(){",
     "  vec2 uv = (v - 0.5) * scale + 0.5;",
-    "  vec2 o = vec2(0.0045, 0.009);",
+    "  vec2 o = vec2(0.012, 0.024);",
     "  float m = texture2D(mask, uv).r * 0.4;",
     "  m += texture2D(mask, uv + vec2(o.x, 0.0)).r * 0.15;",
     "  m += texture2D(mask, uv - vec2(o.x, 0.0)).r * 0.15;",
     "  m += texture2D(mask, uv + vec2(0.0, o.y)).r * 0.15;",
     "  m += texture2D(mask, uv - vec2(0.0, o.y)).r * 0.15;",
-    "  vec2 d = vec2(sin(uv.y*140.0 + t + 2.0*sin(uv.x*35.0 + t*0.7)),",
-    "                cos(uv.x*110.0 - t*0.8 + 2.0*sin(uv.y*45.0 - t*0.5)));",
+    "  vec2 p = vec2(uv.x * 2.0, uv.y) * 5.0;",
+    "  vec2 drift = vec2(0.0, -t * 0.12);",
+    "  vec2 d = vec2(fbm(p + drift), fbm(p + vec2(7.3, 2.1) + drift * 1.1)) - 0.5;",
     "  vec3 c = texture2D(img, uv + d * strength * m).rgb;",
-    "  c *= 1.0 + shimmer * m * sin(uv.x*320.0 + uv.y*140.0 + t*1.3);",
+    "  float b = fbm(p * 0.8 + vec2(3.0, 0.0) + drift * 0.7) - 0.5;",
+    "  c *= 1.0 + shimmer * m * b;",
     "  gl_FragColor = vec4(c, 1.0);",
     "}"
   ].join("\n");
