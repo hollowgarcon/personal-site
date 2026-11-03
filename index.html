@@ -1,220 +1,26 @@
-<title>Personal Site</title>
+<title>Dimas Aryo</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&display=swap">
 <style>
-/* Layout: fixed left sidebar with stacked nav, wide content area. Bookshelf is a tile grid, ideas are a table. */
+/* Layout: full-screen painting, name pinned top left. Single look on purpose. */
 :root {
-  --bg: #ffffff;
-  --panel: #f1f3f7;
-  --fg: #12141a;
-  --muted: #5d6475;
-  --line: #e0e4ec;
-  --accent: #2b4eff;
-  --accent-fg: #ffffff;
-  --sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #3a3a34;
+  --ink: #14110d;
+  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1115; --panel: #1a1d25; --fg: #eceef4; --muted: #9aa1b2; --line: #272b36; --accent: #7d95ff; --accent-fg: #0f1115;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1115; --panel: #1a1d25; --fg: #eceef4; --muted: #9aa1b2; --line: #272b36; --accent: #7d95ff; --accent-fg: #0f1115;
-  color-scheme: dark;
-}
+html, body { height: 100%; }
 body {
-  background: var(--bg); color: var(--fg);
-  font: 400 16px/1.6 var(--sans);
-  padding-block: 0;
+  background: var(--bg) url("background.jpg") center / cover no-repeat;
+  color: var(--ink);
+  padding-block: 28px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
-a { color: var(--accent); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-.app { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; max-width: 1080px; margin: 0 auto; }
-aside { position: sticky; top: 0; align-self: start; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; padding-block: 40px; }
-.brand { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; text-decoration: none; color: var(--fg); }
-nav { display: flex; flex-direction: column; gap: 4px; margin-top: 32px; }
-nav a {
-  color: var(--muted); text-decoration: none; font-weight: 500;
-  padding: 8px 12px; margin-inline: -12px; border-radius: 8px;
-}
-nav a:hover { background: var(--panel); color: var(--fg); }
-nav a[aria-current="page"] { background: var(--accent); color: var(--accent-fg); }
-aside button {
-  font: 500 13px var(--sans); color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
-}
-aside button:hover { color: var(--fg); }
-
-main { padding-block: 56px 96px; min-width: 0; }
-main > section[hidden] { display: none; }
-h1 { font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 12px; text-wrap: balance; }
-h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
-.lede { font-size: 18px; color: var(--muted); margin: 0 0 40px; max-width: 52ch; }
-.todo { background: var(--panel); border-radius: 4px; padding: 0 6px; font-size: 0.85em; color: var(--accent); }
-
-/* About */
-.about { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; align-items: start; }
-.photo { aspect-ratio: 1; border-radius: 16px; background: var(--panel); display: grid; place-items: center; color: var(--muted); font-size: 13px; max-width: 100%; }
-.blocks { display: grid; gap: 32px; }
-.blocks p { margin: 0; max-width: 60ch; }
-.links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
-
-/* Ideas */
-.tabs, .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-.tabs button, .filters button {
-  font: 600 13px var(--sans); color: var(--muted); background: var(--panel);
-  border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer;
-}
-.tabs button:hover, .filters button:hover { color: var(--fg); }
-.tabs button[aria-pressed="true"], .filters button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
-.table { display: grid; }
-.trow { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 8px 24px; padding: 18px 0; border-top: 1px solid var(--line); align-items: baseline; }
-.trow:last-child { border-bottom: 1px solid var(--line); }
-.trow[hidden] { display: none; }
-.date { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-.ttitle { font-weight: 700; font-size: 18px; }
-.tdesc { margin: 2px 0 0; color: var(--muted); }
-.tag { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--panel); color: var(--fg); }
-
-/* Bookshelf */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 20px; }
-.book { display: grid; gap: 10px; align-content: start; }
-.book[hidden] { display: none; }
-.cover { aspect-ratio: 2 / 3; border-radius: 6px 12px 12px 6px; background: var(--panel); border-left: 6px solid var(--accent); padding: 14px; display: flex; align-items: flex-end; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; }
-.book .by { color: var(--muted); font-size: 14px; margin: 0; }
-.book .st { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
-
-@media (max-width: 720px) {
-  .app { grid-template-columns: minmax(0, 1fr); gap: 0; }
-  aside { position: static; height: auto; padding-block: 20px 0; gap: 12px; }
-  nav { flex-direction: row; flex-wrap: wrap; margin-top: 12px; }
-  nav a { margin-inline: 0; }
-  main { padding-block: 32px 64px; }
-  h1 { font-size: 34px; }
-  .about { grid-template-columns: minmax(0, 1fr); }
-  .photo { max-width: 160px; }
-  .trow { grid-template-columns: minmax(0, 1fr); }
+h1 {
+  margin: 0;
+  font: 500 clamp(24px, 3.2vw, 36px) / 1.1 var(--serif);
+  letter-spacing: 0.01em;
 }
 </style>
 
-<div class="app">
-  <aside>
-    <div>
-      <a class="brand" href="#about">Your Name</a>
-      <nav aria-label="Main">
-        <a href="#about" data-view="about">About</a>
-        <a href="#ideas" data-view="ideas">Ideas &amp; Learnings</a>
-        <a href="#bookshelf" data-view="bookshelf">Bookshelf</a>
-      </nav>
-    </div>
-    <button type="button" id="theme">Switch theme</button>
-  </aside>
-
-  <main>
-    <section data-view="about">
-      <h1>About</h1>
-      <p class="lede">A one-sentence version of you goes here. <span class="todo">edit</span></p>
-      <div class="about">
-        <div class="photo">photo</div>
-        <div class="blocks">
-          <div><h2>Who I am</h2><p>A short paragraph about your background and what you do. <span class="todo">edit</span></p></div>
-          <div><h2>Right now</h2><p>What you are working on and thinking about this month. <span class="todo">edit</span></p></div>
-          <div><h2>Elsewhere</h2>
-            <div class="links"><a href="https://github.com/hollowgarcon">GitHub</a><span class="todo">add links</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section data-view="ideas" hidden>
-      <h1>Ideas &amp; Learnings</h1>
-      <p class="lede">Things you are working through, and things you figured out.</p>
-      <div class="tabs" role="group" aria-label="Filter entries">
-        <button type="button" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" data-filter="idea" aria-pressed="false">Ideas</button>
-        <button type="button" data-filter="learning" aria-pressed="false">Learnings</button>
-      </div>
-      <div class="table" id="entries">
-        <div class="trow" data-kind="idea">
-          <span class="date">Nov 3, 2026</span>
-          <div><div class="ttitle">Example idea: a half-formed thought</div><p class="tdesc">One or two lines on where the thought stands today.</p></div>
-          <span class="tag">Idea</span>
-        </div>
-        <div class="trow" data-kind="learning">
-          <span class="date">Oct 28, 2026</span>
-          <div><div class="ttitle">Example learning: something that surprised you</div><p class="tdesc">What you learned and what changed in how you work.</p></div>
-          <span class="tag">Learning</span>
-        </div>
-        <div class="trow" data-kind="idea">
-          <span class="date">Oct 15, 2026</span>
-          <div><div class="ttitle">Example idea: a question you keep returning to</div><p class="tdesc">The question, and your current best guess.</p></div>
-          <span class="tag">Idea</span>
-        </div>
-      </div>
-    </section>
-
-    <section data-view="bookshelf" hidden>
-      <h1>Bookshelf</h1>
-      <p class="lede">What you are reading, what you have read, and what is next.</p>
-      <div class="filters" role="group" aria-label="Filter books">
-        <button type="button" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" data-filter="reading" aria-pressed="false">Reading</button>
-        <button type="button" data-filter="read" aria-pressed="false">Read</button>
-        <button type="button" data-filter="want" aria-pressed="false">Want to read</button>
-      </div>
-      <div class="shelf" id="books">
-        <div class="book" data-status="reading"><div class="cover">Example Book Title</div><div><div class="st">Reading</div><p class="by">Author name</p></div></div>
-        <div class="book" data-status="read"><div class="cover">Example Book Title</div><div><div class="st">Read</div><p class="by">Author name</p></div></div>
-        <div class="book" data-status="read"><div class="cover">Example Book Title</div><div><div class="st">Read</div><p class="by">Author name</p></div></div>
-        <div class="book" data-status="want"><div class="cover">Example Book Title</div><div><div class="st">Want to read</div><p class="by">Author name</p></div></div>
-      </div>
-    </section>
-  </main>
-</div>
-
-<script>
-(function () {
-  var views = ["about", "ideas", "bookshelf"];
-  function show() {
-    var v = location.hash.replace("#", "");
-    if (views.indexOf(v) < 0) v = "about";
-    document.querySelectorAll("main > section").forEach(function (s) {
-      s.hidden = s.dataset.view !== v;
-    });
-    document.querySelectorAll("nav a").forEach(function (a) {
-      if (a.dataset.view === v) a.setAttribute("aria-current", "page");
-      else a.removeAttribute("aria-current");
-    });
-  }
-  window.addEventListener("hashchange", show);
-  show();
-
-  function wire(groupSel, itemSel, key) {
-    var group = document.querySelector(groupSel);
-    group.querySelectorAll("button").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var f = b.dataset.filter;
-        group.querySelectorAll("button").forEach(function (x) {
-          x.setAttribute("aria-pressed", x === b ? "true" : "false");
-        });
-        document.querySelectorAll(itemSel).forEach(function (el) {
-          el.hidden = f !== "all" && el.dataset[key] !== f;
-        });
-      });
-    });
-  }
-  wire('.tabs', '#entries .trow', 'kind');
-  wire('.filters', '#books .book', 'status');
-
-  document.getElementById("theme").addEventListener("click", function () {
-    var r = document.documentElement;
-    var dark = r.dataset.theme
-      ? r.dataset.theme === "dark"
-      : matchMedia("(prefers-color-scheme: dark)").matches;
-    r.dataset.theme = dark ? "light" : "dark";
-  });
-})();
-</script>
+<h1>Dimas Aryo</h1>
