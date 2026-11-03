@@ -8,8 +8,9 @@
   --ink: #ffffff;
   --serif: "Cormorant", Georgia, "Times New Roman", serif;
 }
-html, body { height: 100%; }
+html, body { height: 100%; overflow: hidden; }
 body {
+  box-sizing: border-box;
   background: var(--bg) url("background.jpg") center / cover no-repeat;
   color: var(--ink);
   padding-block: 28px;
